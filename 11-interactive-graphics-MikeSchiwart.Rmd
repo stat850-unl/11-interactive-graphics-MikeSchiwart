@@ -1,0 +1,27 @@
+---
+title: "11-interactive_graphics_MikeSchiwart"
+author: "Mike Schiwart"
+date: "12/7/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r data}
+library(tidyverse) 
+library(stringr)
+cocktails <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2020/2020-05-26/cocktails.csv')
+
+cocktails$merged <- str_c(cocktails$ingredient, ' ', cocktails$measure)
+cocktails <- add_count(cocktails, drink)
+cocktails2 <- aggregate(cocktails$merged, list(cocktails$row_id, cocktails$drink), paste, collapse= " ", simplify = FALSE)
+cocktails2 <- rename(cocktails2, row_id = Group.1, drink = Group.2, merged = x)
+temp <- cocktails %>% distinct(row_id, glass, n) %>% rename(ingredients = n)
+cocktail <- left_join(cocktails2, temp, by = "row_id")
+cocktail$merged<- str_c(cocktail$glass, ' ', cocktail$merged)
+write.csv(cocktail,"cocktail.csv", row.names = FALSE)
+```
+
